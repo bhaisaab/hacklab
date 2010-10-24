@@ -1,6 +1,7 @@
 
 """
-To test, run python <filename> -v
+To test, run: (for python 2.6+)
+python -m doctest <filename> -v
 This is the "example" module.
 The example module supplies one function, factorial().  For example,
 
@@ -56,8 +57,4 @@ def factorial(n):
         factor += 1
     return result
 
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
 
