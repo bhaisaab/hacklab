@@ -1,0 +1,9 @@
+My awesome python workouts :P
+
+django       - My workouts with django
+general      - Python progamming in general
+inject       - Python inject programs to showcase power of injection
+misc         - Rendezvous with rather small and simple python modules, like uuid, netiface
+stomp        - Stomp protocol examples
+testing      - Variety of testing methods in python; doctest, unittest
+twisted      - My workouts with the world famous python twisted framework
