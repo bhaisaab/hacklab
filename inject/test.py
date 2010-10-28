@@ -6,7 +6,6 @@ class A(object): pass
 class B(object): pass
 
 class Controller(object):
-
     config = inject.attr('config', Config)
     a = inject.attr('a', A)
 
