@@ -2,3 +2,5 @@
 *.out
 *.8
 *.o
+*.swp
+*.pro.user
