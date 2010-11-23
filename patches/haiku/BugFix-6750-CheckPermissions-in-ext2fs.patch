@@ -1,0 +1,170 @@
+Index: src/add-ons/kernel/file_systems/ext2/Inode.cpp
+===================================================================
+--- src/add-ons/kernel/file_systems/ext2/Inode.cpp	(revision 39257)
++++ src/add-ons/kernel/file_systems/ext2/Inode.cpp	(working copy)
+@@ -6,9 +6,9 @@
+ 
+ #include "Inode.h"
+ 
+-#include <fs_cache.h>
+ #include <string.h>
+ #include <util/AutoLock.h>
++#include <NodeMonitor.h>
+ 
+ #include "CachedBlock.h"
+ #include "DataStream.h"
+@@ -187,32 +187,39 @@
+ status_t
+ Inode::CheckPermissions(int accessMode) const
+ {
+-	uid_t user = geteuid();
+-	gid_t group = getegid();
+-
+ 	// you never have write access to a read-only volume
+-	if (accessMode & W_OK && fVolume->IsReadOnly())
++	if ((accessMode & W_OK) != 0 && fVolume->IsReadOnly())
+ 		return B_READ_ONLY_DEVICE;
+ 
+-	// root users always have full access (but they can't execute files without
+-	// any execute permissions set)
+-	if (user == 0) {
+-		if (!((accessMode & X_OK) != 0 && (Mode() & S_IXUSR) == 0)
+-			|| S_ISDIR(Mode()))
+-			return B_OK;
+-	}
+-
+-	// shift mode bits, to check directly against accessMode
++	// get node permissions
+ 	mode_t mode = Mode();
+-	if (user == (uid_t)fNode.UserID())
+-		mode >>= 6;
+-	else if (group == (gid_t)fNode.GroupID())
+-		mode >>= 3;
++	int userPermissions = (mode & S_IRWXU) >> 6;
++	int groupPermissions = (mode & S_IRWXG) >> 3;
++	int otherPermissions = mode & S_IRWXO;
+ 
+-	if (accessMode & ~(mode & S_IRWXO))
+-		return B_NOT_ALLOWED;
++	// get the node permissions for this uid/gid
++	int permissions = 0;
++	uid_t uid = geteuid();
++	gid_t gid = getegid();
+ 
+-	return B_OK;
++	if (uid == 0) {
++		// user is root
++		// root has always read/write permission, but at least one of the
++		// X bits must be set for execute permission
++		permissions = userPermissions | groupPermissions | otherPermissions
++			| R_OK | W_OK;
++	} else if (uid == (uid_t)fNode.UserID()) {
++		// user is node owner
++		permissions = userPermissions;
++	} else if (gid == (gid_t)fNode.GroupID()) {
++		// user is in owning group
++		permissions = groupPermissions;
++	} else {
++		// user is one of the others
++		permissions = otherPermissions;
++	}
++
++	return (accessMode & ~permissions) == 0 ? B_OK : B_NOT_ALLOWED;
+ }
+ 
+ 
+Index: src/add-ons/kernel/file_systems/ext2/kernel_interface.cpp
+===================================================================
+--- src/add-ons/kernel/file_systems/ext2/kernel_interface.cpp	(revision 39257)
++++ src/add-ons/kernel/file_systems/ext2/kernel_interface.cpp	(working copy)
+@@ -580,16 +580,17 @@
+ 
+ 	Inode* inode = (Inode*)_node->private_node;
+ 
+-	status_t status = inode->CheckPermissions(W_OK);
+-	if (status < B_OK)
+-		return status;
++	ext2_inode& node = inode->Node();
++	bool updateTime = false;
++	uid_t uid = geteuid();
++	
++	bool isOwnerOrRoot = uid == 0 || uid == (uid_t)node.UserID();
++	bool hasWriteAccess = inode->CheckPermissions(W_OK) == B_OK;
+ 
+ 	TRACE("ext2_write_stat: Starting transaction\n");
+ 	Transaction transaction(volume->GetJournal());
+ 	inode->WriteLockInTransaction(transaction);
+ 
+-	bool updateTime = false;
+-
+ 	if ((mask & B_STAT_SIZE) != 0) {
+ 		if (inode->IsDirectory())
+ 			return B_IS_A_DIRECTORY;
+@@ -599,9 +600,11 @@
+ 		TRACE("ext2_write_stat: Old size: %ld, new size: %ld\n",
+ 			(long)inode->Size(), (long)stat->st_size);
+ 		if (inode->Size() != stat->st_size) {
++			if (!hasWriteAccess)
++				return B_NOT_ALLOWED;
+ 			off_t oldSize = inode->Size();
+ 
+-			status = inode->Resize(transaction, stat->st_size);
++			status_t status = inode->Resize(transaction, stat->st_size);
+ 			if(status != B_OK)
+ 				return status;
+ 
+@@ -615,24 +618,35 @@
+ 		}
+ 	}
+ 
+-	ext2_inode& node = inode->Node();
+-
+ 	if ((mask & B_STAT_MODE) != 0) {
++		// only the user or root can do that
++		if (!isOwnerOrRoot)
++			return B_NOT_ALLOWED;
+ 		node.UpdateMode(stat->st_mode, S_IUMSK);
+ 		updateTime = true;
+ 	}
+ 
+ 	if ((mask & B_STAT_UID) != 0) {
++		// only root should be allowed
++		if (uid != 0)
++			return B_NOT_ALLOWED;
+ 		node.SetUserID(stat->st_uid);
+ 		updateTime = true;
+ 	}
++
+ 	if ((mask & B_STAT_GID) != 0) {
++		// only the user or root can do that
++		if (!isOwnerOrRoot)
++			return B_NOT_ALLOWED;
+ 		node.SetGroupID(stat->st_gid);
+ 		updateTime = true;
+ 	}
+ 
+ 	if ((mask & B_STAT_MODIFICATION_TIME) != 0 || updateTime
+ 		|| (mask & B_STAT_CHANGE_TIME) != 0) {
++		// the user or root can do that or any user with write access
++		if (!isOwnerOrRoot && !hasWriteAccess)
++			return B_NOT_ALLOWED;
+ 		struct timespec newTimespec = { 0, 0};
+ 
+ 		if ((mask & B_STAT_MODIFICATION_TIME) != 0)
+@@ -647,10 +661,14 @@
+ 
+ 		inode->SetModificationTime(&newTimespec);
+ 	}
+-	if ((mask & B_STAT_CREATION_TIME) != 0)
++	if ((mask & B_STAT_CREATION_TIME) != 0) {
++		// the user or root can do that or any user with write access
++		if (!isOwnerOrRoot && !hasWriteAccess)
++			return B_NOT_ALLOWED;
+ 		inode->SetCreationTime(&stat->st_crtim);
++	}
+ 
+-	status = inode->WriteBack(transaction);
++	status_t status = inode->WriteBack(transaction);
+ 	if (status == B_OK)
+ 		status = transaction.Done();
+ 	if (status == B_OK)

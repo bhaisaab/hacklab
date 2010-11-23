@@ -1,0 +1,182 @@
+Index: src/add-ons/kernel/file_systems/bfs/Inode.cpp
+===================================================================
+--- src/add-ons/kernel/file_systems/bfs/Inode.cpp	(revision 39257)
++++ src/add-ons/kernel/file_systems/bfs/Inode.cpp	(working copy)
+@@ -489,33 +489,39 @@
+ status_t
+ Inode::CheckPermissions(int accessMode) const
+ {
+-	uid_t user = geteuid();
+-	gid_t group = getegid();
+-
+ 	// you never have write access to a read-only volume
+ 	if ((accessMode & W_OK) != 0 && fVolume->IsReadOnly())
+ 		return B_READ_ONLY_DEVICE;
+ 
+-	// root users always have full access (but they can't execute files without
+-	// any execute permissions set)
+-	if (user == 0) {
+-		if (!((accessMode & X_OK) != 0 && (Mode() & S_IXUSR) == 0)
+-			|| (Mode() & S_DIRECTORY) != 0) {
+-			return B_OK;
+-		}
+-	}
+-
+-	// shift mode bits, to check directly against accessMode
++	// get node permissions
+ 	mode_t mode = Mode();
+-	if (user == (uid_t)fNode.UserID())
+-		mode >>= 6;
+-	else if (group == (gid_t)fNode.GroupID())
+-		mode >>= 3;
++	int userPermissions = (mode & S_IRWXU) >> 6;
++	int groupPermissions = (mode & S_IRWXG) >> 3;
++	int otherPermissions = mode & S_IRWXO;
+ 
+-	if (accessMode & ~(mode & S_IRWXO))
+-		return B_NOT_ALLOWED;
++	// get the node permissions for this uid/gid
++	int permissions = 0;
++	uid_t uid = geteuid();
++	gid_t gid = getegid();
+ 
+-	return B_OK;
++	if (uid == 0) {
++		// user is root
++		// root has always read/write permission, but at least one of the
++		// X bits must be set for execute permission
++		permissions = userPermissions | groupPermissions | otherPermissions
++			| R_OK | W_OK;
++	} else if (uid == (uid_t)fNode.UserID()) {
++		// user is node owner
++		permissions = userPermissions;
++	} else if (gid == (gid_t)fNode.GroupID()) {
++		// user is in owning group
++		permissions = groupPermissions;
++	} else {
++		// user is one of the others
++		permissions = otherPermissions;
++	}
++
++	return (accessMode & ~permissions) == 0 ? B_OK : B_NOT_ALLOWED;
+ }
+ 
+ 
+Index: src/add-ons/kernel/file_systems/bfs/kernel_interface.cpp
+===================================================================
+--- src/add-ons/kernel/file_systems/bfs/kernel_interface.cpp	(revision 39257)
++++ src/add-ons/kernel/file_systems/bfs/kernel_interface.cpp	(working copy)
+@@ -778,16 +778,16 @@
+ 	// TODO: we should definitely check a bit more if the new stats are
+ 	//	valid - or even better, the VFS should check this before calling us
+ 
+-	status_t status = inode->CheckPermissions(W_OK);
+-	if (status < B_OK)
+-		RETURN_ERROR(status);
++	bfs_inode& node = inode->Node();
++	bool updateTime = false;
++	uid_t uid = geteuid();
++	
++	bool isOwnerOrRoot = uid == 0 || uid == (uid_t)node.UserID();
++	bool hasWriteAccess = inode->CheckPermissions(W_OK) == B_OK;
+ 
+ 	Transaction transaction(volume, inode->BlockNumber());
+ 	inode->WriteLockInTransaction(transaction);
+ 
+-	bfs_inode& node = inode->Node();
+-	bool updateTime = false;
+-
+ 	if ((mask & B_STAT_SIZE) != 0) {
+ 		// Since WSTAT_SIZE is the only thing that can fail directly, we
+ 		// do it first, so that the inode state will still be consistent
+@@ -798,9 +798,11 @@
+ 			return B_BAD_VALUE;
+ 
+ 		if (inode->Size() != stat->st_size) {
++			if (!hasWriteAccess)
++				RETURN_ERROR(B_NOT_ALLOWED);
+ 			off_t oldSize = inode->Size();
+ 
+-			status = inode->SetFileSize(transaction, stat->st_size);
++			status_t status = inode->SetFileSize(transaction, stat->st_size);
+ 			if (status != B_OK)
+ 				return status;
+ 
+@@ -822,7 +824,26 @@
+ 		}
+ 	}
+ 
++	if ((mask & B_STAT_UID) != 0) {
++		// only root should be allowed
++		if (uid != 0)
++			RETURN_ERROR(B_NOT_ALLOWED);
++		node.uid = HOST_ENDIAN_TO_BFS_INT32(stat->st_uid);
++		updateTime = true;
++	}
++
++	if ((mask & B_STAT_GID) != 0) {
++		// only the user or root can do that
++		if (!isOwnerOrRoot)
++			RETURN_ERROR(B_NOT_ALLOWED);
++		node.gid = HOST_ENDIAN_TO_BFS_INT32(stat->st_gid);
++		updateTime = true;
++	}
++
+ 	if ((mask & B_STAT_MODE) != 0) {
++		// only the user or root can do that
++		if (!isOwnerOrRoot)
++			RETURN_ERROR(B_NOT_ALLOWED);
+ 		PRINT(("original mode = %ld, stat->st_mode = %d\n", node.Mode(),
+ 			stat->st_mode));
+ 		node.mode = HOST_ENDIAN_TO_BFS_INT32((node.Mode() & ~S_IUMSK)
+@@ -830,16 +851,18 @@
+ 		updateTime = true;
+ 	}
+ 
+-	if ((mask & B_STAT_UID) != 0) {
+-		node.uid = HOST_ENDIAN_TO_BFS_INT32(stat->st_uid);
+-		updateTime = true;
++	if ((mask & B_STAT_CREATION_TIME) != 0) {
++		// the user or root can do that or any user with write access
++		if (!isOwnerOrRoot && !hasWriteAccess)
++			RETURN_ERROR(B_NOT_ALLOWED);
++		node.create_time
++			= HOST_ENDIAN_TO_BFS_INT64(bfs_inode::ToInode(stat->st_crtim));
+ 	}
+-	if ((mask & B_STAT_GID) != 0) {
+-		node.gid = HOST_ENDIAN_TO_BFS_INT32(stat->st_gid);
+-		updateTime = true;
+-	}
+ 
+ 	if ((mask & B_STAT_MODIFICATION_TIME) != 0) {
++		// the user or root can do that or any user with write access
++		if (!isOwnerOrRoot && !hasWriteAccess)
++			RETURN_ERROR(B_NOT_ALLOWED);
+ 		if (!inode->InLastModifiedIndex()) {
+ 			// directory modification times are not part of the index
+ 			node.last_modified_time
+@@ -851,11 +874,11 @@
+ 				bfs_inode::ToInode(stat->st_mtim));
+ 		}
+ 	}
+-	if ((mask & B_STAT_CREATION_TIME) != 0) {
+-		node.create_time
+-			= HOST_ENDIAN_TO_BFS_INT64(bfs_inode::ToInode(stat->st_crtim));
+-	}
++
+ 	if ((mask & B_STAT_CHANGE_TIME) != 0 || updateTime) {
++		// the user or root can do that or any user with write access
++		if (!isOwnerOrRoot && !hasWriteAccess)
++			RETURN_ERROR(B_NOT_ALLOWED);
+ 		bigtime_t newTime;
+ 		if ((mask & B_STAT_CHANGE_TIME) == 0)
+ 			newTime = bfs_inode::ToInode(real_time_clock_usecs());
+@@ -865,7 +888,7 @@
+ 		node.status_change_time = HOST_ENDIAN_TO_BFS_INT64(newTime);
+ 	}
+ 
+-	status = inode->WriteBack(transaction);
++	status_t status = inode->WriteBack(transaction);
+ 	if (status == B_OK)
+ 		status = transaction.Done();
+ 	if (status == B_OK)
