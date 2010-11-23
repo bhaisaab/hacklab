@@ -1,0 +1,562 @@
+From fa68276a4c14cb29c720cb9b4d629d7237b8449b Mon Sep 17 00:00:00 2001
+From: Rohit Yadav <rohityadav89@gmail.com>
+Date: Sun, 18 Jul 2010 00:10:54 +0200
+Subject: [PATCH 3/5] Mini Mode Controller for VLC
+
+---
+ modules/gui/qt4/components/minimode.cpp |  392 +++++++++++++++++++++++++++++++
+ modules/gui/qt4/components/minimode.hpp |  143 +++++++++++
+ 2 files changed, 535 insertions(+), 0 deletions(-)
+ create mode 100644 modules/gui/qt4/components/minimode.cpp
+ create mode 100644 modules/gui/qt4/components/minimode.hpp
+
+diff --git a/modules/gui/qt4/components/minimode.cpp b/modules/gui/qt4/components/minimode.cpp
+new file mode 100644
+index 0000000..cdd529b
+--- /dev/null
++++ b/modules/gui/qt4/components/minimode.cpp
+@@ -0,0 +1,392 @@
++/*****************************************************************************
++ * minimode.hpp : Mini Mode Controller for VLC
++ ****************************************************************************
++ * Copyright (C) 2010 the VideoLAN team
++ *
++ * Authors: Rohit Yadav <rohityadav89@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
++ *****************************************************************************/
++
++#ifdef HAVE_CONFIG_H
++# include "config.h"
++#endif
++
++#include <vlc_vout.h>
++#include <vlc_keys.h>
++
++#include "components/minimode.hpp"
++#include "components/controller_widget.hpp"
++#include "components/interface_widgets.hpp"
++
++#include "input_manager.hpp"
++#include "actions_manager.hpp"
++
++#include "util/input_slider.hpp" /* InputSlider */
++#include "util/customwidgets.hpp" /* qEventToKey */
++
++#include <QPainter>
++
++/* MiniModeWidget: Constructor, Functions */
++MiniModeWidget::MiniModeWidget( intf_thread_t *_p_i, QWidget *parent )
++        : QWidget( parent, Qt::ToolTip | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint ), p_intf( _p_i )
++{
++    setAttribute( Qt::WA_TranslucentBackground );
++    setAcceptDrops( true );                             /* Enable File Drag n Drop */
++    setWindowOpacity( MINIMODE_OPACITY );               /* Make it transparent */
++    setFixedSize( MINIMODE_WIDTH, MINIMODE_HEIGHT );    /* Set Fixed Size */
++    setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
++
++    /* UI Toggle control */
++    b_toggle        = false;                            /* false = pause,  true = play */
++
++    /* Album-Art Container */
++    artwork = new QLabel();
++    artwork->setPixmap( QPixmap( IMAGE_VLC ) );
++    artwork->adjustSize();
++    artwork->setMaximumSize( 70, 70 );
++    artwork->setScaledContents( true );
++
++    metaData = new MiniModeLabel( this );
++    metaData->setTextFormat( Qt::RichText );
++    metaData->setWordWrap( false );
++    metaData->setScaledContents( true );
++    metaData->setFont( QFont( "Serif", 8, QFont::DemiBold ) );
++    setMetaData( "VLC", "VideoLAN", "Copyright (C) 1996-2010" );
++
++    timeLabel = new MiniModeLabel( this );
++    timeLabel->setText( "--:--" );
++
++    /* Construct minimal Controller Buttons: Pause/Play, Next and Previous */
++    playButton = new MiniModeLabel( 15, 15, IMAGE_PLAY );
++    nextButton = new MiniModeLabel( 13, 13, IMAGE_NEXT );
++    prevButton = new MiniModeLabel( 13, 13, IMAGE_PREV );
++    modeButton = new MiniModeLabel( 16, 16, IMAGE_MMVLC );
++
++    /* Cool Blue Playback Slider */
++    playbackSlider = new InputSlider( Qt::Horizontal, this );
++    playbackSlider->setMaximumHeight( 12 );
++
++    /* Posh Pink Volume Slider */
++    volumeSlider = new SoundWidget( this, _p_i, false, true );
++    volumeSlider->setMaximumWidth( 16 );
++
++    #ifdef MINIMODE_USE_CSS
++    playbackSlider->setStyleSheet(
++        " QSlider::groove:horizontal"
++            "{ background: #5f5f5f; height: 1px; margin: 0px 0; }"
++        " QSlider::handle:horizontal"
++            "{ image: url("IMAGE_KNOB"); width: 10px; height: 10px; margin: -5px 0; }"
++        " QSlider::add-page:horizontal"
++            "{ background: #5f5f5f; }"
++        " QSlider::sub-page:horizontal"
++            "{ background: #1987de;}" ); /* Cool Blue */
++
++    volumeSlider->setStyleSheet(
++        " QWidget { background: black; }"
++        " QSlider { background: black; }"
++        " QSlider::groove:vertical"
++            "{ background: #5f5f5f; width: 2px; }"
++        " QSlider::handle:vertical"
++            "{ image: url("IMAGE_KNOB"); width: 10px; height: 10px; margin: 0 -5px; }"
++        " QSlider::sub-page:vertical"
++            "{ background: #5f5f5f; width: 1px;}"
++        " QSlider::add-page:vertical"
++            "{ background: #fe1987; width: 2px; }" ); /* Posh Pink */
++    #endif
++
++    /* Add widgets to Grid Layout */
++    QGridLayout *layout = new QGridLayout();
++
++    /* First row */
++    layout->addWidget( metaData,        0, 0, 2, 5, Qt::AlignTop );
++    layout->addWidget( modeButton,      0, 5, 1, 1, Qt::AlignTop | Qt::AlignRight );
++    layout->addWidget( artwork,         0, 6, 3, 3, Qt::AlignVCenter | Qt::AlignRight );
++    /* Middle Row */
++    layout->addWidget( volumeSlider,    1, 5, 1, 1, Qt::AlignVCenter | Qt::AlignRight );
++    /* Last row */
++    layout->addWidget( prevButton,      2, 0, 1, 1, Qt::AlignBottom );
++    layout->addWidget( playButton,      2, 1, 1, 1, Qt::AlignBottom );
++    layout->addWidget( nextButton,      2, 2, 1, 1, Qt::AlignBottom );
++    layout->addWidget( playbackSlider,  2, 3, 1, 1, Qt::AlignBottom );
++    layout->addWidget( timeLabel,       2, 4, 1, 2, Qt::AlignBottom );
++
++    layout->setHorizontalSpacing( 4 );
++    layout->setVerticalSpacing( 2 );
++    layout->setMargin( 5 );
++    setLayout(layout);
++
++    /* Show the widget on the Top-Right of the Screen */
++    QDesktopWidget *desktop = QApplication::desktop();
++
++    /* Show widget on bottom-right on the Desktop */
++    move( ( desktop->width() - width() - 20 ), ( desktop->height() - height() - 30 ) );
++
++    /* Connect VLC playback controller objects with corresponding functions */
++    CONNECT( prevButton, clicked(), this, prevClicked() );
++    CONNECT( playButton, clicked(), this, playClicked() );
++    CONNECT( nextButton, clicked(), this, nextClicked() );
++    CONNECT( modeButton, clicked(), this, toggleInterface() );
++
++    CONNECT( metaData, pressEvent( QMouseEvent* ), this, mousePressEvent( QMouseEvent* ) );
++    CONNECT( metaData, moveEvent( QMouseEvent* ), this, mouseMoveEvent( QMouseEvent* ) );
++
++    /* Update Meta Data */
++    CONNECT( THEMIM->getIM(), infoChanged( input_item_t* ),
++             this, updateMetaData( input_item_t* ) );
++    CONNECT( THEMIM->getIM(), currentMetaChanged( input_item_t* ),
++             this, updateMetaData( input_item_t* ) );
++
++    /* Update Album Art */
++    CONNECT( THEMIM->getIM(), artChanged( QString ),
++             this, updateArtwork( const QString & ) );
++
++    /* Play/Pause Toggle Synchronization */
++    CONNECT( THEMIM->getIM(), statusChanged( int ),
++             this, syncNotifierController( const int & ) );
++
++    /* Sync. Playback Control */
++    CONNECT( THEMIM->getIM(), positionUpdated( float, int64_t, int ),
++             this, updatePosition( float, int64_t, int ) );
++
++    /* And update the IM, when the position has changed */
++    CONNECT( playbackSlider, sliderDragged( float ),
++             THEMIM->getIM(), sliderUpdate( float ) );
++
++    msg_Dbg( p_intf, "VLC Mini Mode Initialized" );
++}
++
++MiniModeWidget::~MiniModeWidget()
++{
++    delete metaData;
++    delete artwork;
++    delete volumeSlider;
++    delete playbackSlider;
++    delete prevButton;
++    delete nextButton;
++    delete playButton;
++    delete modeButton;
++}
++
++void MiniModeWidget::toggleVisibility( bool visible )
++{
++    visible ? show() : hide();
++}
++
++void MiniModeWidget::paintEvent( QPaintEvent *event )
++{
++    QPainter painter( this );
++
++    painter.setRenderHint( QPainter::Antialiasing );
++    painter.setBrush( Qt::black );
++    painter.drawRoundedRect( 0, 0, MINIMODE_WIDTH, MINIMODE_HEIGHT, 6, 6 );
++
++    QWidget::paintEvent( event );
++}
++
++void MiniModeWidget::enterEvent( QEvent * /* event */ )
++{
++    setWindowOpacity( 0.92 );
++}
++
++void MiniModeWidget::leaveEvent( QEvent * /* event */ )
++{
++    setWindowOpacity( MINIMODE_OPACITY );
++}
++
++void MiniModeWidget::mousePressEvent( QMouseEvent *event )
++{
++    if( event->button() == Qt::LeftButton )
++    {
++        dragPosition = event->globalPos();
++        event->accept();
++    }
++}
++
++void MiniModeWidget::mouseMoveEvent( QMouseEvent *event )
++{
++    if( event->buttons() & Qt::LeftButton )
++    {
++        move( pos() + event->globalPos() - dragPosition );
++        dragPosition = event->globalPos();
++        event->accept();
++    }
++}
++
++/* Update Album Art */
++void MiniModeWidget::updateArtwork( const QString &url )
++{
++    artwork->clear();
++
++    if( !url.isEmpty() )
++        artwork->setPixmap( QPixmap( url ) );
++}
++
++#define RICHTEXT( fsize, fweight, string ) \
++"<span style=\"font-size:"#fsize"pt;" \
++        "font-weight:"#fweight";" \
++        "color:#ffffff;\">" + string + "</span>"
++
++void MiniModeWidget::setMetaData( QString name, QString artist, QString album )
++{
++    QString metaString;
++
++    metaString = RICHTEXT( 9, 600, name );
++
++    if( !artist.isEmpty() )
++        metaString.append( QString("<br>") + RICHTEXT( 8, 500, artist ) );
++
++    if( !album.isEmpty() )
++        metaString.append( QString("<br>") + RICHTEXT( 7, 400, album ) );
++
++    if( artist.isEmpty() && album.isEmpty() )
++        metaData->setWordWrap( true );
++    else
++        metaData->setWordWrap( false );
++
++    /* Clear Labels to avoid painting errors */
++    metaData->clear();
++    metaData->setText( metaString );
++}
++
++/* Update Meta Data of the Media being played */
++void MiniModeWidget::updateMetaData( input_item_t* data )
++{
++    if( data != NULL )
++        setMetaData( QString( input_item_GetName( data ) ),
++                     QString( input_item_GetArtist( data ) ),
++                     QString( input_item_GetAlbum( data ) ) );
++}
++
++void MiniModeWidget::updatePosition( float pos, int64_t t, int len )
++{
++    playbackSlider->setPosition( pos, t, len );
++
++    if( pos == -1.f )
++    {
++        timeLabel->setText( " --:--" );
++        return;
++    }
++
++    int time = t / 1000000;
++    char psz_time[MSTRTIME_MAX_SIZE];
++
++    secstotimestr( psz_time, time );
++
++    QString timestr = QString( "%1" ).arg( QString( psz_time ) );
++
++    timeLabel->setText( RICHTEXT( 7, 400, timestr) );
++}
++
++/* Sync UI Elements with Main Interface UI */
++void MiniModeWidget::syncNotifierController( const int &i_status )
++{
++    /* Enums are declared in vlc_input.h */
++    switch( i_status )
++    {
++        case PLAYING_S: playButton->load( IMAGE_PAUSE );
++                        b_toggle = false; break;
++        case END_S:     /* STOP */
++        case PAUSE_S:   playButton->load( IMAGE_PLAY );
++                        b_toggle = true;  break;
++    }
++}
++
++/* UI Button Slots */
++void MiniModeWidget::playClicked()
++{
++    playButton->load( b_toggle ? IMAGE_PAUSE : IMAGE_PLAY );
++    b_toggle ^= true;
++    THEMIM->togglePlayPause();
++}
++
++void MiniModeWidget::prevClicked()
++{
++    THEMIM->prev();
++}
++
++void MiniModeWidget::nextClicked()
++{
++    THEMIM->next();
++}
++
++void MiniModeWidget::toggleInterface()
++{
++    toggleVisibility( false );
++    parentWidget()->show();
++    parentWidget()->showNormal();
++    parentWidget()->activateWindow();
++}
++
++/* Drag n Drop Event Handlers */
++void MiniModeWidget::dropEvent( QDropEvent *event )
++{
++    artwork->clear();
++    emit filesDropped( event );
++}
++
++void MiniModeWidget::dragEnterEvent( QDragEnterEvent *event )
++{
++     event->acceptProposedAction();
++}
++
++void MiniModeWidget::dragMoveEvent( QDragMoveEvent *event )
++{
++     event->acceptProposedAction();
++}
++
++void MiniModeWidget::dragLeaveEvent( QDragLeaveEvent *event )
++{
++     event->accept();
++}
++
++/************************
++ * MiniMode Label Widget
++ ************************/
++MiniModeLabel::MiniModeLabel( QWidget *parent )
++    : QLabel( parent )
++{
++    setScaledContents( true );
++}
++
++MiniModeLabel::MiniModeLabel( int width, int height, QString url, QWidget *parent )
++    : QLabel( parent )
++{
++    setPixmap( QPixmap( url ) );
++    adjustSize();
++    setMaximumSize( width, height );
++    setScaledContents( true );
++}
++
++void MiniModeLabel::load( QString url )
++{
++    setPixmap( QPixmap( url ) );
++}
++
++void MiniModeLabel::mouseReleaseEvent( QMouseEvent *event )
++{
++    if( event->button() == Qt::LeftButton )
++        emit clicked();
++}
++
++void MiniModeLabel::mousePressEvent( QMouseEvent *event )
++{
++    emit pressEvent( event );
++}
++
++void MiniModeLabel::mouseMoveEvent( QMouseEvent *event )
++{
++    emit moveEvent( event );
++}
+diff --git a/modules/gui/qt4/components/minimode.hpp b/modules/gui/qt4/components/minimode.hpp
+new file mode 100644
+index 0000000..17daa65
+--- /dev/null
++++ b/modules/gui/qt4/components/minimode.hpp
+@@ -0,0 +1,143 @@
++/*****************************************************************************
++ * minimode.hpp : Mini Mode Controller for VLC
++ ****************************************************************************
++ * Copyright (C) 2010 the VideoLAN team
++ *
++ * Authors: Rohit Yadav <rohityadav89@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
++ *****************************************************************************/
++
++#ifndef MINIMODE_CONTROLLER_H_
++#define MINIMODE_CONTROLLER_H_
++
++#ifdef HAVE_CONFIG_H
++# include "config.h"
++#endif
++
++#include "qt4.hpp"
++
++#include <QLabel>
++#include <QString>
++
++#define MINIMODE_USE_CSS 1
++#define MINIMODE_OPACITY 0.80
++#define MINIMODE_WIDTH   300
++#define MINIMODE_HEIGHT  75
++
++#define IMAGE_VLC      ":/logo/vlc128.png"
++#define IMAGE_MMVLC    ":/minimode/mm-vlc.png"
++#define IMAGE_PLAY     ":/minimode/play.png"
++#define IMAGE_PAUSE    ":/minimode/pause.png"
++#define IMAGE_NEXT     ":/minimode/next.png"
++#define IMAGE_PREV     ":/minimode/previous.png"
++#define IMAGE_KNOB     ":/minimode/knob.png"
++
++
++class QPixmap;
++class QMouseEvent;
++class QGridLayout;
++class InputSlider;
++class SoundWidget;
++
++class MiniModeLabel : public QLabel
++{
++    Q_OBJECT
++
++    public:
++        MiniModeLabel( QWidget *parent = 0 );
++        MiniModeLabel( int width, int height, QString url, QWidget *parent = 0 );
++        void load( QString url );
++
++    protected:
++        void mouseReleaseEvent(QMouseEvent*);
++        void mousePressEvent( QMouseEvent* );
++        void mouseMoveEvent( QMouseEvent* );
++
++    signals:
++        void clicked();
++        void pressEvent( QMouseEvent* );
++        void moveEvent( QMouseEvent* );
++};
++
++class MiniModeWidget : public QWidget
++{
++    Q_OBJECT
++
++public:
++    MiniModeWidget( intf_thread_t *_p_intf, QWidget *parent = 0 );
++    ~MiniModeWidget();
++    void toggleVisibility( bool visible );
++
++private:
++    intf_thread_t *p_intf;
++
++    /* Stores Attributes for Moving Widget */
++    QPoint        dragPosition;
++
++    /* Meta Data Widgets */
++    QLabel        *artwork;
++    MiniModeLabel *metaData;
++
++    /* UI Flags */
++    bool          b_toggle;
++
++    /* Controller Button */
++    MiniModeLabel *prevButton;
++    MiniModeLabel *nextButton;
++    MiniModeLabel *playButton;
++    MiniModeLabel *modeButton;
++
++    /* CSS based Sliders */
++    SoundWidget   *volumeSlider;
++    InputSlider   *playbackSlider;
++
++    MiniModeLabel *timeLabel;
++
++    void setMetaData( QString name, QString artist, QString album );
++
++protected:
++    void enterEvent( QEvent* );
++    void leaveEvent( QEvent* );
++    void paintEvent( QPaintEvent* );
++
++    void dropEvent( QDropEvent*);
++    void dragEnterEvent( QDragEnterEvent* );
++    void dragMoveEvent( QDragMoveEvent* );
++    void dragLeaveEvent( QDragLeaveEvent* );
++
++private slots:
++    /* Slots to handle UI */
++    void playClicked();
++    void prevClicked();
++    void nextClicked();
++    void toggleInterface();
++
++    void mousePressEvent( QMouseEvent* );
++    void mouseMoveEvent( QMouseEvent* );
++
++    /* Slots to handle Updates from IM */
++    void updateMetaData( input_item_t* data );
++    void updateArtwork( const QString& );
++
++    /* Slots to Synchronize Changes with IM */
++    void syncNotifierController( const int& );
++    void updatePosition( float, int64_t, int );
++
++signals:
++    void filesDropped( QDropEvent* );
++};
++
++#endif
+-- 
+1.7.0.4
+

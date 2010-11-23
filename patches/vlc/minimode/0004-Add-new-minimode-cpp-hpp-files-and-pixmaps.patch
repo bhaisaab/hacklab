@@ -1,0 +1,53 @@
+From 5d2cc2dbcf0e278542d26e9226aa63db96cfd4c6 Mon Sep 17 00:00:00 2001
+From: Rohit Yadav <rohityadav89@gmail.com>
+Date: Sun, 18 Jul 2010 00:14:01 +0200
+Subject: [PATCH 5/5] Add new minimode cpp, hpp files and pixmaps
+
+---
+ modules/gui/qt4/Modules.am |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/modules/gui/qt4/Modules.am b/modules/gui/qt4/Modules.am
+index 01fd039..b4b63b6 100644
+--- a/modules/gui/qt4/Modules.am
++++ b/modules/gui/qt4/Modules.am
+@@ -57,6 +57,7 @@ nodist_SOURCES_qt4 = \
+ 		components/epg/EPGRuler.moc.cpp \
+ 		components/epg/EPGView.moc.cpp \
+ 		components/epg/EPGWidget.moc.cpp \
++		components/minimode.moc.cpp \
+ 		components/playlist/icon_view.moc.cpp \
+ 		components/playlist/playlist_model.moc.cpp \
+ 		components/playlist/playlist.moc.cpp \
+@@ -101,6 +102,12 @@ DEPS_res = \
+ 	pixmaps/menus/quit_16px.png \
+ 	pixmaps/menus/settings_16px.png \
+ 	pixmaps/menus/stream_16px.png \
++	pixmaps/minimode/knob.png \
++	pixmaps/minimode/mm-vlc.png \
++	pixmaps/minimode/next.png \
++	pixmaps/minimode/pause.png \
++	pixmaps/minimode/play.png \
++	pixmaps/minimode/previous.png \
+ 	pixmaps/next.png \
+ 	pixmaps/next_16px.png \
+ 	pixmaps/noart-64.png \
+@@ -261,6 +268,7 @@ SOURCES_qt4 = 	qt4.cpp \
+ 		components/epg/EPGRuler.cpp \
+ 		components/epg/EPGView.cpp \
+ 		components/epg/EPGWidget.cpp \
++		components/minimode.cpp \
+ 		components/playlist/icon_view.cpp \
+ 		components/playlist/playlist_model.cpp \
+ 		components/playlist/playlist_item.cpp \
+@@ -319,6 +327,7 @@ noinst_HEADERS = \
+ 	components/epg/EPGRuler.hpp \
+ 	components/epg/EPGView.hpp \
+ 	components/epg/EPGWidget.hpp \
++	components/minimode.hpp \
+ 	components/playlist/icon_view.hpp \
+ 	components/playlist/playlist_model.hpp \
+ 	components/playlist/playlist_item.hpp \
+-- 
+1.7.0.4
+

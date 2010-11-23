@@ -1,0 +1,182 @@
+From d48b487519f25b3b1ab7dd47225b687b7f2a8a0d Mon Sep 17 00:00:00 2001
+From: Rohit Yadav <rohityadav89@gmail.com>
+Date: Sat, 17 Jul 2010 22:52:40 +0200
+Subject: [PATCH 1/5] Add new mini-mode pixmaps and file paths to qt resource file
+
+---
+ modules/gui/qt4/pixmaps/minimode/knob.png     |  Bin 0 -> 269 bytes
+ modules/gui/qt4/pixmaps/minimode/mm-vlc.png   |  Bin 0 -> 2403 bytes
+ modules/gui/qt4/pixmaps/minimode/next.png     |  Bin 0 -> 478 bytes
+ modules/gui/qt4/pixmaps/minimode/pause.png    |  Bin 0 -> 297 bytes
+ modules/gui/qt4/pixmaps/minimode/play.png     |  Bin 0 -> 383 bytes
+ modules/gui/qt4/pixmaps/minimode/previous.png |  Bin 0 -> 475 bytes
+ modules/gui/qt4/vlc.qrc                       |    8 ++++++++
+ 7 files changed, 8 insertions(+), 0 deletions(-)
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/knob.png
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/mm-vlc.png
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/next.png
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/pause.png
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/play.png
+ create mode 100644 modules/gui/qt4/pixmaps/minimode/previous.png
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/knob.png b/modules/gui/qt4/pixmaps/minimode/knob.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..3bacb23ac4fae0bf94fc2fc7b5c92645493b0169
+GIT binary patch
+literal 269
+zcmeAS@N?(olHy`uVBq!ia0vp^AT}2V8<6ZZI=>f4u@pObhHwBu4M$1`kblI}#W6%;
+zYVQO?u0swYF7DUYJYh>zTymN-=PS>>BfsXWhgxyxCuF8Bf7#@FKyS^7ynQ{sEg_TG
+zgKH(8*(bC-X-o0_WVcLh=RuK4?34UM-#T-w7dYe{T0O~s5<5f0ggcBD$0V*FHc*MZ
+zzL!zq^d=L}Ne82(8QwT<3c7l)THf^u*8`RZDoWw+Yh`AyW<43*W0-$C?DQrZe|1ye
+z&AMGlscUO>3@58LbQ?Z<JjdHr<-e?pO8L2^$7b+1oc@#k?A6R&f3*K_&pNz2J>$IN
+Ra-e@0JYD@<);T3K0RRVjY4-pC
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/mm-vlc.png b/modules/gui/qt4/pixmaps/minimode/mm-vlc.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b3ec1354b27f74c9b2ac7da7f78d02dfbfff67a9
+GIT binary patch
+literal 2403
+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
+Vy?G`jpQQi*002ovPDHLkV1kM6pGyD$
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/next.png b/modules/gui/qt4/pixmaps/minimode/next.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b1881d758202fa11c9cba117a4c76e3b3cd15c6f
+GIT binary patch
+literal 478
+zcmV<40U`d0P)<h;3K|Lk000e1NJLTq000yK000pP1^@s6-9(JO00001b5ch_0Itp)
+z=>Px#24YJ`L;(K){{a7>y{D4^000SaNLh0L01FcU01FcV0GgZ_00007bV*G`2igY>
+z7a$a=4Ac$)00CY}L_t(I%cYdDPE=74hX4O)LSjcDF%}q2C<uk2qT>aqa6{}Zt)%oJ
+zY;A1`1qrWULCF(9f-%@_W#xk3Z?Wet*X7>bo9y4*<er&t=FH3)C3yjCNKz8Dl|;a{
+zBmo+vBu7AixAV{>N)q5WiH8D5)d}FN4XwaQ4R{SK&9qb}*|wxZ;FqM`7Ercj`;DZD
+zq>o+YnF$yHX;d>!lF!v~k_S<3PLn(v1e}B30QY$;Y8iIt8&<l4)axh7D@jlKOl)5Q
+zC#95G2})maJ(Z^H{+`-?5B!kyav^Y_T!U{WxdrxD1<tN&`%5Y1`_oleHN)SMUfUio
+zyK)v})xf^ler|i*+mt*^?3JXgI?Vr_+5Vg4!1jkEf9k)^Ic(<ZYil`7W(U*n1<>Dm
+zpn1zlatG|R&IB}XIl!l-n+JGTjn9*;buEV^KY{f@Yb?oLlEbbCUo$)&ybC4$1Ddp_
+UVYHwU$^ZZW07*qoM6N<$f-Z*24*&oF
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/pause.png b/modules/gui/qt4/pixmaps/minimode/pause.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..be7b3f817de3ac8dcc85bcba30328c890aaac2f7
+GIT binary patch
+literal 297
+zcmeAS@N?(olHy`uVBq!ia0vp^f<P?9!3HGv{xl5%QjEnx?oJHr&dIz4a@dl*-CY>|
+zgW!U_%O?XxI14-?iy0WWg+Z8+Vb&Z8pdfpRr>`sfEp`Dh6;9skGnN5`R(iTPhFF|_
+zJJ~RcDNw}qy|l<h(HklJ-y&Up={SVH)Z5f<qQr7Gq111dy+HfS5Hm*pJCFANx7hQH
+z&4R&v!GGDWJbP3+e{t3H|EvDGByUmO3JWHI3U8qYFIaNZ@2e^bhfEC(eY-Qn`0y_8
+zq)D?r^(-l#R8q;{e=_*fd6g{7yX$t}jA2}@)jji*s^`irM{mow$1L8r+O|M)QCx%Y
+nhTQNsSJs=!7lqn4Ugh7t<;-T+SxS$Aj%M(5^>bP0l+XkKKUZ!j
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/play.png b/modules/gui/qt4/pixmaps/minimode/play.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..ed53b59155cdb5d0299e7f92b4982b063e9d4608
+GIT binary patch
+literal 383
+zcmeAS@N?(olHy`uVBq!ia0vp^A|TAc1|)ksWqE-VV{wqX6T`Z5GB1G~wj^(N7l!{J
+zxM1({$v_d#0*}aI1_o|n5N2eUHAey{$X?><>&kwMomX7W%ywnpbfD0GPZ!4!i_>eT
+z7<#cd3b?LTzfi4lD9!D4QpO^7gAXiKOy@T(T$qriGDBOMYgWfgDJdNZj!k>g6V4mF
+zIK_9jPGVK_%<HaK=gS}1TD9^Wlc3<mYf6mIo(I>m91Bzqe;sD~A~uST<<>5iXRqSw
+z)~`Bz=FPD}cA4+{G@1T2t>#Ynf1IzY;nUi0e;DShZHZb|CiDK4;)Y1>H)#`2a~H@7
+zPL$cRZ|iPf&86Gb{<TjF@>-~u)$mQ{i-_QI-^*`Yp8kou+PN!m)0A^BUfC7|<;<SP
+z{`|m-Fa9rk*4$g+-hAj0|D;z!6=B=G4llfaajKPO-+G>30qL*GLbFzj9}tn??OJa7
+ai^=%xpWAxr?r(uX!QkoY=d#Wzp$PzK3!OIr
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/pixmaps/minimode/previous.png b/modules/gui/qt4/pixmaps/minimode/previous.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..3cf0e3ebd4145fb0dfc22523f01ffa65e4166168
+GIT binary patch
+literal 475
+zcmV<10VMv3P)<h;3K|Lk000e1NJLTq000yK000pP1^@s6-9(JO00001b5ch_0Itp)
+z=>Px#24YJ`L;(K){{a7>y{D4^000SaNLh0L01FcU01FcV0GgZ_00007bV*G`2igY>
+z7a$)#-VKHT00CP`L_t(I%cYb(Zc{-NM!#>I!lI!`BnwMaY#;>^Nh;U?oqKjbNrfd?
+z0Lo%WM}ZVMO_o6wBr2$|ze6+cX|SJvz|+jr%)B$_&fGiF0WC?_pRdmWT|Z6obSJ1=
+zoW#I;x`EAgmq`F-d+mU6l5a^!vK+AfQegnIvdav3C+U}@sqMek*uF~gVEdJAZISPR
+zkAcs1=YD%&S*<<-q*3caJ{f>r0k^iPR$jZH2is==Ue}gX)<V3gunkb1AK5;WGzgQV
+z&hQ!V6?kHsAy_@P{&U-Log}#c7R?XV5v`O`?rgucy{w^g6tJ3I1CJzquZG(an6}>v
+zOrlcCZ`%_|AAmt<a}nMNETzxy*q%#z0sQF18pD;OQ`?LGI-Vpqwd7Khw=KPSl2w=6
+zduzGL&DTj*ZKX8O3GlP6<%3LtF>s$`HSjo$fKN4&nf~QH1m5g;;$8yJ{{S=uU*%(C
+RHU|Iz002ovPDHLkV1hp$$OZra
+
+literal 0
+HcmV?d00001
+
+diff --git a/modules/gui/qt4/vlc.qrc b/modules/gui/qt4/vlc.qrc
+index d0a826c..2d74a7c 100644
+--- a/modules/gui/qt4/vlc.qrc
++++ b/modules/gui/qt4/vlc.qrc
+@@ -115,4 +115,12 @@
+         <file alias="play" >pixmaps/win7/win7thumbnail_play.png</file>
+         <file alias="next" >pixmaps/win7/win7thumbnail_next.png</file>
+     </qresource>
++    <qresource prefix="/minimode" >
++        <file alias="next.png" >pixmaps/minimode/next.png</file>
++        <file alias="pause.png" >pixmaps/minimode/pause.png</file>
++        <file alias="play.png" >pixmaps/minimode/play.png</file>  
++        <file alias="previous.png" >pixmaps/minimode/previous.png</file>
++        <file alias="mm-vlc.png" >pixmaps/minimode/mm-vlc.png</file>
++        <file alias="knob.png" >pixmaps/minimode/knob.png</file>
++    </qresource>
+ </RCC>
+-- 
+1.7.0.4
+

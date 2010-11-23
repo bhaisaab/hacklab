@@ -1,0 +1,151 @@
+From 4649df3a2d1f7cd49456bd16ea4bbd1540ac8fd5 Mon Sep 17 00:00:00 2001
+From: Rohit Yadav <rohityadav89@gmail.com>
+Date: Sat, 17 Jul 2010 22:53:17 +0200
+Subject: [PATCH 2/4] Check settings and create minimode widget
+
+---
+ modules/gui/qt4/main_interface.cpp |   30 ++++++++++++++++++++++++++++++
+ modules/gui/qt4/main_interface.hpp |    4 ++++
+ 2 files changed, 34 insertions(+), 0 deletions(-)
+
+diff --git a/modules/gui/qt4/main_interface.cpp b/modules/gui/qt4/main_interface.cpp
+index 02e3bb8..34da592 100644
+--- a/modules/gui/qt4/main_interface.cpp
++++ b/modules/gui/qt4/main_interface.cpp
+@@ -39,6 +39,7 @@
+ 
+ #include "components/interface_widgets.hpp"     // bgWidget, videoWidget
+ #include "components/controller.hpp"            // controllers
++#include "components/minimode.hpp"              // mini-mode controller
+ #include "components/playlist/playlist.hpp"     // plWidget
+ #include "dialogs/firstrun.hpp"                 // First Run
+ 
+@@ -80,6 +81,7 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf )
+     sysTray              = NULL;
+ #endif
+     fullscreenControls   = NULL;
++    miniModeWidget       = NULL;
+     cryptedLabel         = NULL;
+     controls             = NULL;
+     inputC               = NULL;
+@@ -395,6 +397,7 @@ void MainInterface::createMainWidget( QSettings *settings )
+              this, popupMenu( const QPoint& ) );
+ 
+     if ( depth() > 8 ) /* 8bit depth has too many issues with opacity */
++    {
+         /* Create the FULLSCREEN CONTROLS Widget */
+         if( var_InheritBool( p_intf, "qt-fs-controller" ) )
+         {
+@@ -402,6 +405,15 @@ void MainInterface::createMainWidget( QSettings *settings )
+             CONNECT( fullscreenControls, keyPressed( QKeyEvent * ),
+                      this, handleKeyPress( QKeyEvent * ) );
+         }
++
++        /* Create Mini Mode Controller Widget */
++        if( var_InheritBool( p_intf, "qt-minimode" ) )
++        {
++            miniModeWidget = new MiniModeWidget( p_intf, this );
++            CONNECT( miniModeWidget, filesDropped( QDropEvent * ),
++                     this, miniModeDropEvent(QDropEvent * ) );
++        }
++    }
+ }
+ 
+ inline void MainInterface::initSystray()
+@@ -923,12 +935,16 @@ void MainInterface::toggleUpdateSystrayMenu()
+     {
+         show();
+         activateWindow();
++        if( miniModeWidget )
++            miniModeWidget->toggleVisibility( false );
+     }
+     else if( isMinimized() )
+     {
+         /* Minimized */
+         showNormal();
+         activateWindow();
++        if( miniModeWidget )
++            miniModeWidget->toggleVisibility( false );
+     }
+     else
+     {
+@@ -949,13 +965,19 @@ void MainInterface::toggleUpdateSystrayMenu()
+                 (wi.dwExStyle&WS_EX_TOPMOST) )
+             {
+                 hide();
++                if( miniModeWidget )
++                    miniModeWidget->toggleVisibility( true );
+             }
+             else
+             {
+                 activateWindow();
++                if( miniModeWidget )
++                    miniModeWidget->toggleVisibility( false );
+             }
+ #else
+         hide();
++        if( miniModeWidget )
++            miniModeWidget->toggleVisibility( true );
+ #endif
+     }
+     QVLCMenu::updateSystrayMenu( this, p_intf );
+@@ -1083,19 +1105,27 @@ void MainInterface::dropEventPlay( QDropEvent *event, bool b_play )
+     }
+     event->accept();
+ }
++
+ void MainInterface::dragEnterEvent(QDragEnterEvent *event)
+ {
+      event->acceptProposedAction();
+ }
++
+ void MainInterface::dragMoveEvent(QDragMoveEvent *event)
+ {
+      event->acceptProposedAction();
+ }
++
+ void MainInterface::dragLeaveEvent(QDragLeaveEvent *event)
+ {
+      event->accept();
+ }
+ 
++void MainInterface::miniModeDropEvent( QDropEvent * event )
++{
++   dropEventPlay( event, true );
++}
++
+ /************************************************************************
+  * Events stuff
+  ************************************************************************/
+diff --git a/modules/gui/qt4/main_interface.hpp b/modules/gui/qt4/main_interface.hpp
+index e2a5985..0845e63 100644
+--- a/modules/gui/qt4/main_interface.hpp
++++ b/modules/gui/qt4/main_interface.hpp
+@@ -50,6 +50,7 @@ class AdvControlsWidget;
+ class ControlsWidget;
+ class InputControlsWidget;
+ class FullscreenControllerWidget;
++class MiniModeWidget;
+ class SpeedControlWidget;
+ class QVBoxLayout;
+ class QMenu;
+@@ -133,6 +134,7 @@ private:
+     ControlsWidget      *controls;
+     InputControlsWidget *inputC;
+     FullscreenControllerWidget *fullscreenControls;
++    MiniModeWidget             *miniModeWidget;
+ 
+     /* Widgets */
+     QStackedWidget      *stackCentralW;
+@@ -226,6 +228,8 @@ private slots:
+     void setVideoFullScreen( bool );
+     void setVideoOnTop( bool );
+ 
++    void miniModeDropEvent( QDropEvent * );
++
+ signals:
+     void askGetVideo( WId *p_id, int *pi_x, int *pi_y,
+                       unsigned *pi_width, unsigned *pi_height );
+-- 
+1.7.0.4
+
