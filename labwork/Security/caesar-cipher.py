@@ -23,21 +23,23 @@ def decipher(S, n = 3):
     return finale_str
 
 # Encipher examples...
-msg = "\t!@#$%^&*()+-=_1234567890{}[]:;'<>,./?~` A quick brown fox jumps over a lazy DOG!\n"
+msg = "!@#$%^&*()+-=_1234567890{}[]:;'<>,./?~`\t A quick brown fox jumps over a lazy DOG!"
 key = 5
-print "[MESSAGE]: "
-print msg
+print "[MESSAGE]: ", msg
 print "[KEY]: ", key
 
 cipherText = encipher(msg, key)
-print "[Testing Encipher]"
-print cipherText
+print "[Enciphered Msg]: ", cipherText
 
 # Decipher examples...
-print "[Testing Decipher]"
-print decipher(cipherText, key)
+print "[Deciphered Msg]: ", decipher(cipherText, key)
 
 if( msg == decipher(cipherText, key) ):
-    print "[RESULT] Algorithm successful\n"
+    print "[RESULT] Algorithm successful"
 else:
-    print "[RESULT] Algorithm failed\n"
+    print "[RESULT] Algorithm failed"
+
+print "\n[BRUTE] Running decipher() for all key in range(1, 25):\n"
+
+for i in range(26):
+    if i != 0: print "[key = %2d]: %s" % (i, decipher(cipherText, i))
