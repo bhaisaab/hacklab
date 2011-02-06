@@ -13,10 +13,11 @@ from optparse import OptionParser
 from django.utils.encoding import smart_str
 from calendar import month_name
 
-filePrefix = 'buzzackup-raw-'
 namespace = "{http://www.w3.org/2005/Atom}"
 namespace_thr = "{http://purl.org/syndication/thread/1.0}"
 namespace_likers = "{http://portablecontacts.net/ns/1.0}"
+feedUrl = "https://www.googleapis.com/buzz/v1/activities/%s/@public"
+feedUrl2 = "http://buzz.googleapis.com/feeds/%s/public/posted"
 
 def readFeed(url):
     if url != None:
@@ -35,17 +36,18 @@ def readFeedFromFile(fileName = 'buzzackup.xml'):
 def importBuzzFeed(nick, fileName):
     print "Getting raw feed from Google Buzz service"
     f = open(fileName, 'w')
-    rawFeed = readFeed("http://buzz.googleapis.com/feeds/"+nick+"/public/posted");
+    rawFeed = readFeed(feedUrl % nick);
+    print rawFeed
     f.write(rawFeed)
     f.close()
     print "Raw feed saved as file: %s" % (fileName)
 
-def exportHtmlFeed(feedFileName, handle, nick, reverse = False, outputFileName = 'buzzout.html'):
+def exportHtmlFeed(feedFileName, htmlOutputFileName, handle, nick, reverse = False):
     data = readFeedFromFile(feedFileName)
     entries = ET.XML(data).findall(namespace + "entry")
     if reverse: entries.reverse()
 
-    f = open(outputFileName, 'w')
+    f = open(htmlOutputFileName, 'w')
     f.write('<html><head><title>Buzzackup of %s<title></head><body>' % nick)
     f.write("<h1>Buzz by %s {%d}!</h1>" % (nick ,len(entries)))
 
@@ -58,7 +60,7 @@ def exportHtmlFeed(feedFileName, handle, nick, reverse = False, outputFileName =
         prettyDate = "%s %s %s " % (entryDate[2], month_name[int(entryDate[1])], entryDate[0])
         f.write("<strong>" + prettyDate + "</strong>")
         post = entry.findall(namespace + 'content')[0].text
-        f.write("<div class=\"post\">" + post + "</div>")
+        f.write("<div class=\"post\">" + smart_str(post) + "</div>")
         postId = entry.findall(namespace + 'id')[0].text.replace('/', ':')
         likedUrl = "https://www.googleapis.com/buzz/v1/activities/" + handle + "/@self/" + postId + "/@liked"
         rawLikedFeed = readFeed(likedUrl)
@@ -72,7 +74,7 @@ def exportHtmlFeed(feedFileName, handle, nick, reverse = False, outputFileName =
             for liker in likers:
                 likerName = liker.findall(namespace_likers + 'displayName')[0].text
                 likerUri = liker.findall(namespace_likers + 'profileUrl')[0].text
-                f.write("<a href=\"%s\">%s</a>" % (likerUri, likerName))
+                f.write("<a href=\"%s\">%s</a>" % (likerUri, smart_str(likerName)))
                 likeCounter += 1
                 if likeCounter != len(likers):
                     f.write(", ")
@@ -96,7 +98,7 @@ def exportHtmlFeed(feedFileName, handle, nick, reverse = False, outputFileName =
                         authorUri = author.findall(namespace + 'uri')[0].text
                         commentDate = entry.findall(namespace + 'updated')[0].text.split('T')[0].split('-')
                         prettyDate = "%s %s %s " % (commentDate[2], month_name[int(commentDate[1])], commentDate[0])
-                        f.write("<a href=\"%s\">%s</a> (%s) - %s" % (authorUri, authorName, prettyDate, reply))
+                        f.write("<a href=\"%s\">%s</a> (%s) - %s" % (authorUri, smart_str(authorName), prettyDate, smart_str(reply)))
                         f.write("</div>")
                     f.write("</div>")
         f.write("</div></div><br>")
@@ -105,27 +107,31 @@ def exportHtmlFeed(feedFileName, handle, nick, reverse = False, outputFileName =
     f.write('</body></html>')
     f.close()
 
-    print "Exported to HTML output:", outputFileName
+    print "Exported to HTML output:", htmlOutputFileName
     
 def main():
     parser = OptionParser()
-    parser.add_option("-p", "--profile", dest="handle", default="rohityadav89", help="Your Google Buzz Profile id/handle")
+    parser.add_option("-i", "--id", dest="handle", default="rohityadav89", help="Your Google Buzz Profile id/handle")
     parser.add_option("-n", "--nick", dest="nick", default="Rohit Yadav", help="Your Name")
-    parser.add_option("-i", "--inputfile", dest="inputFileName", default="buzzackup.xml", help="Specify a xml feed file as input")
-    parser.add_option("-o", "--outputfile", dest="outputFileName", default="buzzackup.xml", help="Output xml feed file")
+    parser.add_option("-f", "--feedfile", dest="fileName", default="", help="Specify a xml feed file as input")
+    parser.add_option("-o", "--htmlfile", dest="outputFileName", default="", help="Output xml feed file")
     parser.add_option("-d", dest="download", action="store_true", default=False, help="Enable to fetch the feed. Default to use fetched file.")
+    parser.add_option("-e", dest="export", action="store_true", default=False, help="Enable to parse a pre-fetched xml feed file.")
     (options, args) = parser.parse_args()
 
     handle = options.handle
     nick = options.nick
-    iFileName = options.inputFileName
+    if options.fileName == "":
+        fileName = "buzzackup-%s.xml" % handle
+
+    if options.outputFileName == "":
+        htmlOutputFileName = "buzzout-%s.html" % handle
 
     if options.download:
-        oFileName = options.outputFileName
-        importBuzzFeed(handle, oFileName)
-        iFileName = oFileName
+        importBuzzFeed(handle, fileName)
 
-    exportHtmlFeed(iFileName, handle, nick)
+    if options.export:
+        exportHtmlFeed(fileName, htmlOutputFileName, handle, nick)
 
 if __name__ == '__main__':
     main()
