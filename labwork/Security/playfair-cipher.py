@@ -1,15 +1,5 @@
 class Polybius:
-    """
-    Polybius(alpha = 'abcdefghiklmnopqrstuvwxyz',
-             random = False,
-             keyword = '')
-
-    A simple representation of the Polybius square.
-    
-    alpha: alphabet used
-    random: if True, a random square is generated
-    keyword: a keyword to be used with alpha
-    """
+    """A simple representation of the Polybius square."""
     def __init__(self, alpha = 'abcdefghiklmnopqrstuvwxyz', random = False, keyword = ''):
         if random:
             from random import seed, randint
@@ -40,12 +30,6 @@ class Polybius:
 
 
 def playfair(message, key, decrypt = False):
-    """
-    playfair(message, key, decrypt = False)
-    
-    Encrypts or decrypts a message using the Playfair cipher.
-    key: a Polybius square (see class Polybius) or a keyword (<type 'str'>)
-    """
     if isinstance(key, str):
         key = Polybius(keyword = key)
     elif not isinstance(key, Polybius):
@@ -86,3 +70,8 @@ def playfair(message, key, decrypt = False):
     
     return out
 
+msg = "hide the gold in the tree stump"
+key = "playfairexample"
+cipherText = playfair(msg, key)
+print cipherText
+print playfair(cipherText, key, True)

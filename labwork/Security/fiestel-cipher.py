@@ -1,50 +1,38 @@
-def fiestel(msg, key, decrypt=False):
-    wordLen = len(msg)
-    if len(msg) % 2 != 0:
-        print "[+] padding msg"
-        msg += " "
-        wordLen += 1
+k = []
+rounds = 16
 
-    key = filter(str.isalpha, key).lower()
-    if len(key) < wordLen/2:
-        print "Key should be at least half the len of msg!!!"
-        import sys
-        sys.exit()
-
-    l, r = [], []
-    for char in msg[:len(msg)/2]:
-        l.append(ord(char))
-
-    for char in msg[len(msg)/2:]:
-        r.append(ord(char))
-
-    print "l, r = ", l, r
-
-    if decrypt:
-        temp = r
-        r = l
+def fiestel(l, r, k, rev=False):
+    for i in range(rounds):
+        temp = r[:]
+        for j in range(len(r)):
+            if rev:
+                r[j] = l[j] ^ (r[j] ^ ord(k[15-i]))
+            else:
+                r[j] = l[j] ^ (r[j] ^ ord(k[i]))
         l = temp
+    return l,r
 
-    for i in range(16):
-        temp = r
-        for j in range(wordLen/2):
-            r[j] = l[j] ^ r[j] ^ ord(key[j])
-        l = temp
+def pm(l,r):
+    ml, mr = '',''
+    for i in range(len(l)):
+        ml += chr(l[i])
+        mr += chr(r[i])
+    return ml+mr
 
-    return r+l
-
-#Key of length 8
-key = "zfyqpgxkwxjh"
-msg = "attack is at dawn!"
+#Key of length 16
+key = "1234567890abcdef"
+msg = "attackisatdawn"
 print "msg[%s]: %s" % (len(msg), msg)
-cipherText = ""
-plainText = ""
+k = key
 
-for i in fiestel(msg, key):
-    cipherText += chr(i)
+l, r = [], []
+for char in msg[:len(msg)/2]:
+    l.append(ord(char))
+for char in msg[len(msg)/2:]:
+    r.append(ord(char))
 
-for i in fiestel(cipherText, key, True):
-    plainText += chr(i)
+l,r = fiestel(l, r, k)
+print pm(r,l)
+l,r = fiestel(r, l, k, True)
+print pm(r,l)
 
-print "[c]: ", cipherText
-print "[d]: ", plainText
