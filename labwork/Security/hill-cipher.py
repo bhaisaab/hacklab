@@ -1,10 +1,8 @@
+# Hill Cipher
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 def hill(message, key, decrypt = False):
-    """
-    hill(message, key, decrypt = False)
-    
-    Encrypts a message using the Hill cipher.
-    Decryption is not currently supported.
-    """
     from math import sqrt
     n = int(sqrt(len(key)))
     if n * n != len(key):

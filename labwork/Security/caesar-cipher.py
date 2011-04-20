@@ -1,3 +1,7 @@
+# Caesar Cipher
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 small = "abcdefghijklmnopqrstuvwxyz"
 big   = small.upper()
 size  = len(big)

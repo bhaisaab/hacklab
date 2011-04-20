@@ -1,3 +1,7 @@
+# Vigenere Cipher
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 def vigenere(message, key, decrypt = False):
 
     message = filter(str.isalpha, message).lower()

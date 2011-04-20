@@ -1,3 +1,7 @@
+# Playfair Cipher
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 class Polybius:
     """A simple representation of the Polybius square."""
     def __init__(self, alpha = 'abcdefghiklmnopqrstuvwxyz', random = False, keyword = ''):

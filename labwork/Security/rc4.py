@@ -1,3 +1,7 @@
+# RC4 Stream Cipher
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 def rc4crypt(data, key):
     # Initialization
     s = range(256)
