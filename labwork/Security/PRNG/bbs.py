@@ -1,4 +1,6 @@
-# Blum Blum Shub PRNG
+# Blum Blum Shub Psedo Random Number Generator
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
 
 p = 383 
 q = 503

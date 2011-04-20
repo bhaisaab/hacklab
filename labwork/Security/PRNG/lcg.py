@@ -1,4 +1,7 @@
 # Linear Congruential Generator
+# Author: Rohit Yadav <rohit.yadav.cse07@itbhu.ac.in>
+#         07020003, IDD Part IV, CSE
+
 # xi = (a * xi + x) mod m
 # period is atmost m, c!=0, iff:
 # 1. c & m are co-primes 
