@@ -5,7 +5,7 @@
 # Usage: tweet <password> <msg>
 
 
-import urllib.request
+import urllib2 as urllib
 import sys
 
 def tweet(msg, username, password):
