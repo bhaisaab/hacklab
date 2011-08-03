@@ -3,7 +3,8 @@
 void f()
 {
     char a;
-    * (char **) (&a + 9) += 20;
+    // on 32 bit systems, 4(size of %ebp)+1(size of char) += 0xc
+    * (char **) (&a + 9) += 10;
 }
 
 int main()
