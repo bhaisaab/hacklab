@@ -1,0 +1,3 @@
+To compile and run erlang from a unix shell:
+erl -compile hello # for hello.erl
+erl -noshell -s hello hello_world -s init stop
