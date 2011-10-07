@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=Gopu
+_Comment=Gopu application
+Categories=GNOME;Utility;
+Exec=gopu
+Icon=gopu
+Terminal=false
+Type=Application
