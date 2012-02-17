@@ -16,8 +16,34 @@ long f(long n)
   else return 3*n+1;
 }
 
+
+//zeroes eveyone
+#define LIM 1000000
+static int dpa[LIM];
+
 long
 chain(long n)
+{
+  if((n < LIM) && dpa[n]) return dpa[n];
+  int c = 1;
+  long norg = n;
+  while(n!=1)
+  {
+    n = f(n);
+    if((n < LIM) && (norg < LIM) &&  dpa[n])
+    {
+      dpa[norg] = c+dpa[n];
+      return dpa[norg];
+    }
+    c+=1;
+    if(norg < LIM)
+      dpa[norg] = c;
+  }
+  return c;
+}
+
+long
+chainDPHash(long n)
 {
   if(dp.find(n) != dp.end()) return dp[n];
   int c = 1;
