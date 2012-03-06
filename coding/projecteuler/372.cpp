@@ -19,17 +19,20 @@ setofy(unsigned long val)
 {
   unsigned long long lsum = 0ULL;
   unsigned long long x = minr+1;
-  unsigned long long lim = maxr/sqrts[val];
-
+  unsigned long long lim = ceil(1.0*maxr/sqrt(val))+1;
+  if (lim>maxr) lim = maxr;
   while (x<=lim)
   {
-    uint64_t y2 = ceil((x*sqrts[val+1])-1);
-    uint64_t y1 = ceil(x*sqrts[val]);
+    printf("");
+    unsigned long long y2 = ceil(x*sqrts[val+1]);
+    unsigned long long y1 = floor(x*sqrts[val]);
     if(y1>maxr) break;
     if(y2>maxr) y2 = maxr;
-    if((y2-y1) >= 0)
-      lsum += (y2-y1+1);
-    else printf("shucks, x=%llu, val=%lu\n", x, val);
+    while( (y1<=y2) && ( (unsigned long long)floor(1.0*y1*y1/(x*x)) != val) ) y1++;
+    while( (y1<y2) && ( (unsigned long long)floor(1.0*y2*y2/(x*x)) != val) ) y2--;
+    if(y2>=y1) lsum+=(y2-y1+1);
+    //for(;y2>=y1;y1++)
+      //if((unsigned long long)floor(1.0*y1*y1/(x*x)) == val) lsum++;
     x++;
   }
   m.lock();
@@ -39,8 +42,8 @@ setofy(unsigned long val)
 
 int main()
 {
-  printf("enter m, n: ");
-  int i = scanf("%llu %llu", &minr, &maxr);
+ // printf("enter m, n: ");
+  //int i = scanf("%llu %llu", &minr, &maxr);
   printf("M = %llu, N = %llu, sum=%llu\n", minr, maxr, sum);
 
   unsigned long maxv = floor( (double)( 1.0 * maxr *  maxr / ((minr+1)*(minr+1)) ) );
@@ -53,7 +56,7 @@ int main()
   int parts = 8;
   thread* tt = new thread[parts];
 
-  printf("[main] using optimized algo\n");
+  printf("[main] using optimized algo till %lu\n", maxv);
   while (val <= maxv)
   {
     for(int i=0; i<parts; ++i) {
@@ -68,7 +71,8 @@ int main()
     }
     for(int i=0; i<parts;++i)
       tt[i].join();
-    printf("\r%llu, %f%% done", sum, val * 100.0 / maxv);
+
+    printf("sum=%llu\n", sum);
   }
   printf("\n%llu\n", sum);
   delete [] tt;
