@@ -6,4 +6,5 @@
 a.out
 *.swp
 *.pro.user
+*.class
 .DS_Store

@@ -1,7 +1,8 @@
 all: build
 
 build:
-	scalac hello.scala
+	mkdir -p classes
+	scalac -d classes HelloWorld.scala
 
 run:
-	scala -classpath . HelloWorld
+	scala -classpath classes HelloWorld
