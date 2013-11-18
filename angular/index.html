@@ -1,0 +1,18 @@
+<!doctype html>
+<html data-ng-app="">
+  <head>
+    <title>testangular</title>
+  </head>
+  <body>
+    <div class="container"
+        data-ng-init="names=['Dave', 'Chuck', 'Heidy', 'Rambo']">
+        Name: <input type="text" data-ng-model="name" /> {{name}}
+        <h3>Loops</h3>
+        <ul>
+          <li data-ng-repeat="name in names">{{name}}</li>
+        </ul>
+    </div>
+
+    <script src="angular.min.js"></script>
+  </body>
+</html>
