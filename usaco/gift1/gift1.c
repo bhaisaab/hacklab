@@ -9,7 +9,7 @@ PROG: gift1
 #include <stdlib.h>
 #include <string.h>
 
-inline int lookup(char giver[15], char people[10][15], int np) {
+int lookup(char giver[15], char people[10][15], int np) {
     int idx = -1;
     int i = 0;
     for (; i < np; i++) {

@@ -4,3 +4,5 @@ build:
 	cd test && make
 	cd ride && make
 	cd gift1 && make
+	cd friday && make
+	cd beads && make
