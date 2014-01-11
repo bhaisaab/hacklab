@@ -8,6 +8,10 @@ PROG: beads
 #include <string.h>
 #include <stdlib.h>
 
+int mod (int a, int b) {
+    return (a % b + b) % b;
+}
+
 int main() {
     FILE *fin = fopen("beads.in", "r");
     FILE *fout = fopen("beads.out", "w");
@@ -26,7 +30,7 @@ int main() {
         right_idx = idx;
         left_idx = idx-1;
         right = beads[right_idx];
-        left = beads[left_idx];
+        left = beads[mod(left_idx, n)];
 
         count = 0;
         // count right
@@ -37,10 +41,10 @@ int main() {
         }
 
         // count left
-        for (; (beads[left_idx % n] == left || beads[left_idx % n] == 'w') && left_idx >= -n ; left_idx--) count++;
+        for (; (beads[mod(left_idx, n)] == left || beads[mod(left_idx, n)] == 'w') && left_idx >= -(n-idx) ; left_idx--) count++;
         if (left == 'w') {
-            left = beads[left_idx % n];
-            for (; (beads[left_idx % n] == left || beads[left_idx % n] == 'w') && left_idx >= -n; left_idx--) count++;
+            left = beads[mod(left_idx, n)];
+            for (; (beads[mod(left_idx, n)] == left || beads[mod(left_idx, n)] == 'w') && left_idx >= -(n-idx) ; left_idx--) count++;
         }
 
         if (count > max_beads) max_beads = count;
