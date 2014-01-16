@@ -8,3 +8,4 @@ build:
 	cd beads && make
 	cd milk2 && make
 	cd transform && make
+	cd namenum && make
