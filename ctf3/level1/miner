@@ -1,0 +1,20 @@
+set -e
+set -x
+
+git reset --hard origin/master
+git pull origin master
+
+# increment gitcoin
+export username="user-sqn7sjop"
+perl -i -pe 's/($ENV{username}: )(\d+)/$1 . ($2+1)/e' LEDGER.txt
+grep -q "$username" LEDGER.txt || echo "$username: 1" >> LEDGER.txt
+
+git add LEDGER.txt
+tree=$(git write-tree)
+parent=$(git rev-parse HEAD)
+difficulty=$(cat difficulty.txt)
+
+body=$(python miner.py ${tree} ${parent} ${difficulty})
+sha=$(git hash-object -t commit --stdin -w <<< "${body}")
+git reset --hard "$sha"
+git push origin master
