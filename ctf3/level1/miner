@@ -1,8 +1,8 @@
 set -e
 set -x
 
+git fetch -a
 git reset --hard origin/master
-git pull origin master
 
 # increment gitcoin
 export username="user-sqn7sjop"
@@ -14,7 +14,7 @@ tree=$(git write-tree)
 parent=$(git rev-parse HEAD)
 difficulty=$(cat difficulty.txt)
 
-body=$(python miner.py ${tree} ${parent} ${difficulty})
+body=$(./gominer ${tree} ${parent} ${difficulty})
 sha=$(git hash-object -t commit --stdin -w <<< "${body}")
 git reset --hard "$sha"
 git push origin master
