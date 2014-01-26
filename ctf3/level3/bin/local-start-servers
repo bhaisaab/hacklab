@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# You can run `bin/local-start-servers by hand to start your servers.
+# However, on the server, we'll actually run bin/start-server directly
+# to boot your nodes. So if you'd like to change how your servers are
+# started, you should modify bin/start-server; there shouldn't be any
+# need to change bin/local-start-servers.
+
+set -eu
+declare -a pids
+pids=()
+
+run() {
+  echo "+ $*"
+  "$@" &
+  pids+=("$!")
+}
+
+cleanup() {
+  for pid in "${pids[@]}"; do
+    echo "$0: killing child $pid"
+    kill "$pid"
+  done
+}
+
+trap cleanup INT TERM QUIT
+
+server_path="$(dirname "$0")/start-server"
+run $server_path --master
+run $server_path --id 1
+run $server_path --id 2
+run $server_path --id 3
+
+echo "$0: servers started"
+
+wait
