@@ -1,7 +1,9 @@
+// Eager solution
 public class QuickFindUF implements IQuickUnion {
 
     private int[] id;
 
+    // O(N)
     public QuickFindUF(int N) {
         id = new int[N];
         for (int i = 0; i < N; i++) {
@@ -9,19 +11,18 @@ public class QuickFindUF implements IQuickUnion {
         }
     }
 
+    // O(1)
     public boolean connected(int p, int q) {
         return id[p] == id[q];
     }
 
-    // all p values should now be q values
+    // O(N) -- all p values should now be q values
     public void union(int p, int q) {
-        int qid = id[q];
         int pid = id[p];
+        int qid = id[q];
         for (int i = 0; i < id.length; i++) {
-            if (id[i] == pid) {
-                id[i] = qid;
-            }
+            if (id[i] == pid) id[i] = qid;
+
         }
     }
-
 }

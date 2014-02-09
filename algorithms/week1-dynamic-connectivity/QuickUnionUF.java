@@ -20,9 +20,9 @@ public class QuickUnionUF  implements IQuickUnion {
 
     // root of p is root of j; p belongs to q's connected component group
     public void union(int p, int q) {
-        int i = id[p];
-        int j = id[q];
-        id[i] = j;
+        int pid = root(p);
+        int qid = root(q);
+        id[pid] = qid;
     }
 
 }
