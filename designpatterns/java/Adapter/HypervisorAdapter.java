@@ -1,27 +1,15 @@
 public class HypervisorAdapter implements Hypervisor {
-    LinuxHost host;
-
-    public HypervisorAdapter(String name) {
-        if (name.equals("Docker")) {
-            this.host = new CoreOS();
-        } else {
-            this.host = new Ubuntu();
-        }
+    private Container container;
+    public HypervisorAdapter(Container container) {
+        this.container = container;
     }
 
-    public void start(String hypervisor, String name) {
-        if (hypervisor.equals("Docker")) {
-            host.startDocker(name);
-        } else {
-            host.startVM(name);
-        }
+    public void startVM(String name) {
+        container.startContainer(name);
     }
 
-    public void stop(String hypervisor, String name) {
-        if (hypervisor.equals("Docker")) {
-            host.stopDocker(name);
-        } else {
-            host.stopVM(name);
-        }
+    public void stopVM(String name) {
+        container.stopContainer(name);
     }
+
 }
