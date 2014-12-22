@@ -8,7 +8,6 @@ public class Tea extends BeverageTemplate {
         System.out.println("Adding caramel");
     }
 
-    @Override
     boolean hookMilk() {
         return true;
     }

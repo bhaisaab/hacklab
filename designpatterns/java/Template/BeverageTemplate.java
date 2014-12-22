@@ -16,15 +16,15 @@ public abstract class BeverageTemplate {
         return false;
     }
 
-    final void boilWater() {
+    private final void boilWater() {
         System.out.println("Boiling water");
     }
 
-    final void addMilk() {
+    private final void addMilk() {
         System.out.println("Adding Milk");
     }
 
-    final void pourInCup() {
+    private final void pourInCup() {
         System.out.println("Pouring into cup");
     }
 }
