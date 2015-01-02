@@ -1,0 +1,58 @@
+This is BibTeX, Version 0.99c (TeX Live 2009/Debian)
+The top-level auxiliary file: thesis.aux
+A level-1 auxiliary file: 0_frontmatter/abstract.aux
+A level-1 auxiliary file: 0_frontmatter/dedication.aux
+A level-1 auxiliary file: 0_frontmatter/acknowledgement.aux
+A level-1 auxiliary file: 0_frontmatter/glossary.aux
+A level-1 auxiliary file: 1_introduction/introduction.aux
+A level-1 auxiliary file: 2/aims.aux
+A level-1 auxiliary file: 3/XYZ.aux
+A level-1 auxiliary file: 4/XYZ.aux
+A level-1 auxiliary file: 5/XYZ.aux
+A level-1 auxiliary file: 6/XYZ.aux
+A level-1 auxiliary file: 7/discussion.aux
+A level-1 auxiliary file: 8/materials_methods.aux
+The style file: Latex/Classes/PhDbiblio-url2.bst
+A level-1 auxiliary file: 9_backmatter/declaration.aux
+Database file #1: 9_backmatter/references.bib
+You've used 2 entries,
+            2776 wiz_defined-function locations,
+            622 strings with 5243 characters,
+and the built_in function-call counts, 610 in all, are:
+= -- 60
+> -- 14
+< -- 0
++ -- 6
+- -- 4
+* -- 26
+:= -- 117
+add.period$ -- 6
+call.type$ -- 2
+change.case$ -- 6
+chr.to.int$ -- 0
+cite$ -- 2
+duplicate$ -- 26
+empty$ -- 57
+format.name$ -- 4
+if$ -- 141
+int.to.chr$ -- 0
+int.to.str$ -- 2
+missing$ -- 2
+newline$ -- 13
+num.names$ -- 4
+pop$ -- 16
+preamble$ -- 1
+purify$ -- 6
+quote$ -- 0
+skip$ -- 42
+stack$ -- 0
+substring$ -- 10
+swap$ -- 6
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 8
+warning$ -- 0
+while$ -- 4
+width$ -- 3
+write$ -- 22
