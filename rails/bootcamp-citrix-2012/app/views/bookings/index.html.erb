@@ -1,0 +1,101 @@
+<h1>Bookings (<%= @requested_date.to_formatted_s(:rfc822) %>)</h1>
+<br>
+<form accept-charset="UTF-8" method="post" action="/bookings">
+<fieldset>
+
+<input  name="booking[user_id]" value="<%= @user.id %>" size="30" type="hidden">
+<input id="booking_roomid" name="booking[room_id]" size="30" type="hidden">
+<div id="slots"></div>
+
+<input  id='slot1' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot2' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot3' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot4' name="booking[slots][]"  size="30" type="hidden">
+
+<input  id='slot5' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot6' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot7' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot8' name="booking[slots][]"  size="30" type="hidden">
+
+<input  id='slot9' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot10' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot11' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot12' name="booking[slots][]"  size="30" type="hidden">
+
+<input  id='slot13' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot14' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot15' name="booking[slots][]"  size="30" type="hidden">
+<input  id='slot16' name="booking[slots][]"  size="30" type="hidden">
+
+<input  name="booking[date(1i)]" value="<%= @requested_date.year() %>" size="30" type="hidden">
+<input  name="booking[date(2i)]" value="<%= @requested_date.month() %>" size="30" type="hidden">
+<input  name="booking[date(3i)]" value="<%= @requested_date.day() %>" size="30" type="hidden">
+
+
+<button type="submit" class="btn btn-success btn-large" id="search_button">Book Me Room!</button>
+</fieldset>
+</form>
+
+<table id="bookingstats" class="table table-striped table-bordered table-condensed">
+  <thead>
+  <tr>
+    <th style="width: 20px;">#Ref</th>
+    <th>Room Name</th>
+    <% (1..16).each do |slotcounter| %>
+      <% hour0 = (((slotcounter-1) * 30) / 60) %>
+      <% mins0 = (((slotcounter-1) * 30) % 60) %>
+      <th><%= 9 + hour0 %>:<% if mins0 == 0%>00<% else %><%= mins0 %><% end%></th>  
+    <% end %>
+  </tr>
+  </thead>
+<% @rooms.each do |room| %>
+  <tr>
+
+    <td style="width: 20px;"><%= Booking.where(:room_id => room.id, :user_id => @user.id).count %></td>
+    <td style="width: 100px;"><a href="/rooms/<%= room.id %>"><%= room.name %></a></td>
+
+    <% (1..16).each do |slotcounter| %>
+      <% curbooking = nil %>
+      <% roombookings = Booking.where(:room_id => room.id, :date => @requested_date) %>
+      <% roombookings.each do |roombooking| %>
+
+       <% maxlim = roombooking.slots.count%>
+        <% (0..maxlim).each do |si| %>
+
+          <% if slotcounter == Integer(roombooking.slots[si]) %>
+            <% curbooking = roombooking %>
+            <% break %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <% if !curbooking.nil? %>
+        <td style="width: 50px;">
+            <div class="progress progress-danger">
+            <div id="s<%= slotcounter %>" class="bar" style="width: 100%;"><img src="<%= get_gravatar(curbooking.user.email, 12) %>"> <a style="color: #fff;" href="/bookings/<%= curbooking.id %>"><%= curbooking.user.name %></a></div>
+            </div>
+        </td>   
+      <% else %>
+        <td style="width: 50px;">
+            <div id="s<%= slotcounter%>-<%= room.id %>" class="progress progress-success">
+            <input id="optionsCheckbox" type="hidden" value="<%= slotcounter %>">
+            <div onClick="$('#s<%= slotcounter%>-<%= room.id %>').toggleClass('progress-success progress-warning'); document.getElementById('booking_roomid').value = '<%= room.id %>'; document.getElementById('slot<%= slotcounter %>').value = '<%= slotcounter %>'" class="bar" style="width: 100%;"></div>
+            </div>
+        </td>
+      <% end %>
+    <% end %>
+  </tr>
+<% end %>
+</table>
+
+<script type="text/javascript" charset="utf-8">
+  /* Table initialisation */
+  $(document).ready(function() {
+    $('#bookingstats').dataTable( {
+      "sPaginationType": "full_numbers",
+      "bPaginate": true,
+      "sDom": '<"datatable_filter"f><"datatable_pagination"p>rti',
+      "aaSorting": [[ 0, "desc" ]],
+    } );
+  } );
+</script>

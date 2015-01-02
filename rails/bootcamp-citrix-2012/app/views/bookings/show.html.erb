@@ -1,0 +1,71 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>User:</b>
+  <%= User.find(@booking.user_id).name %>
+</p>
+
+<p>
+  <b>Room:</b>
+  <%= Room.find(@booking.room_id).name %>
+</p>
+
+<p>
+  <b>Slots:</b>
+  <%= @booking.slots %>
+</p>
+
+<table>
+  <thead>
+  <tr>
+    <% (1..16).each do |slotcounter| %>
+      <% hour0 = (((slotcounter-1) * 30) / 60) %>
+      <% mins0 = (((slotcounter-1) * 30) % 60) %>
+      <th><%= 9 + hour0 %>:<% if mins0 == 0%>00<% else %><%= mins0 %><% end%></th>  
+    <% end %>
+  </tr>
+  </thead>
+<tr>
+<% (1..16).each do |slotcounter| %>
+   <% flag = 0 %>
+   <% maxlim = @booking.slots.count-1%>
+   <% (0..maxlim).each do |si| %>
+     <% if @booking.slots[si] == "" %>
+       <% break%>
+     <% end %>
+     <% if Integer(@booking.slots[si]) == slotcounter %>
+        <td style="width: 50px;">
+            <div class="progress progress-danger">
+            <div id="s<%= slotcounter %>" class="bar" style="width: 100%;"><img src="<%= get_gravatar(User.find(@booking.user_id).email, 12) %>"> <%= User.find(@booking.user_id).name %>
+            </div>
+            </div>
+        </td>   
+        <% flag = 1 %>
+        <% break %>
+     <% end %>
+   <% end %>
+   <% if flag == 0 %>
+        <td style="width: 50px;">
+            <div class="progress">
+            <div id="s<%= slotcounter %>" class="bar" style="width: 0%;"></div>
+            </div>
+        </td>
+   <% end %>
+<% end %>
+</tr>
+</table>
+<p>
+  <b>Date:</b>
+  <%= @booking.date %>
+</p>
+<td><%= link_to 'Delete', @booking, :method => :delete, :confirm => "You sure?"  %>
+<hr>
+<h3>Notify participants: (append comma separated emails)</h3>
+<form accept-charset="UTF-8" method="get" action="/email">
+<fieldset>
+<input  name="user_id" value="<%= @booking.user.id %>" type="hidden">
+<input  name="booking_id" value="<%= @booking.id %>" type="hidden">
+<input  name="emails" value="<%= @booking.user.email %>, " type="text">
+<button type="submit" class="btn btn-success btn-large" id="search_button">Send Email!</button>
+</fieldset>
+</form>

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  capacity: 1
+  floor: 1
+  building: MyString
+
+two:
+  name: MyString
+  capacity: 1
+  floor: 1
+  building: MyString

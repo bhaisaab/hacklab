@@ -1,0 +1,53 @@
+<%= form_for(@booking) do |f| %>
+  <% if @booking.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@booking.errors.count, "error") %> prohibited this booking from being saved:</h2>
+
+      <ul>
+      <% @booking.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div class="field">
+  <label for="booking_user_id">User</label><br>
+  <select id="booking_user_id" name="booking[user_id]">
+  <% User.all.each do |user| %>
+    <option value=<%= user.id %>><%= user.name %></option>
+  <% end %>
+  </select>
+
+  <div class="field">
+  <label for="booking_room_id">Room</label><br>
+  <select id="booking_room_id" name="booking[room_id]">
+  <% Room.all.each do |room| %>
+    <option value=<%= room.id %>><%= room.name %></option>
+  <% end %>
+  </select>
+  </div>
+
+  <div class="field">
+    <input id="user_name" name="booking[slots][]" size="30" type="text">
+  </div>
+
+  <div class="field">
+    <input id="user_name" name="booking[slots][]" size="30" type="text">
+  </div>
+  <div class="field">
+    <input id="user_name" name="booking[slots][]" size="30" type="text">
+  </div>
+  <div class="field">
+    <input id="user_name" name="booking[slots][]" size="30" type="text">
+  </div>
+
+  <div class="field">
+    <%= f.label :date %><br />
+    <%= f.date_select :date %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  user_id: 1
+  room_id: 1
+  slots: MyString
+  date: 2012-07-14
+
+two:
+  user_id: 1
+  room_id: 1
+  slots: MyString
+  date: 2012-07-14

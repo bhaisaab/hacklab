@@ -1,0 +1,120 @@
+<!doctype html public "र">
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>HipBookie - Painless ConfRoomBooking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="{{ static_url("favicon.ico") }}" rel="shortcut icon" type="image/x-icon" />
+  <link href="{{ static_url("css/bootstrap.min.css") }}" rel="stylesheet">
+  <link href="{{ static_url("css/app.css") }}" rel="stylesheet">
+  <link href="{{ static_url("css/datepicker.css") }}" rel="stylesheet">
+  <link href="{{ static_url("css/bootstrap-responsive.min.css") }}" rel="stylesheet">
+
+</head>
+<body style="padding-top: 20px;">
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span12" style="border: 2px dashed #ccc; border-radius: 8px 8px 8px 8px; background-color: #fff; padding: 10px 15px;">
+        <div id="content_holder"><center><img src="{{ static_url("img/preloader.gif") }}"/></center></div>
+        <hr/>
+        <p style="font-size: 12px; text-align: center;"></p>
+      </div>
+    </div>
+  </div> <!-- /container-fluid -->
+
+  <script id="search_template" type="text/template">
+    <center>
+    <legend>HipBookie Search</legend>
+    <form class="form-horizontal"><fieldset>
+
+    <div class="input-prepend">
+    <span class="add-on"><i class="icon-envelope"></i></span>
+    <input name="emails" type="text" placeholder="Add Emails" class="input-xlarge" id="emails">
+    </div><br><br>
+
+    <div class="input-prepend date">
+    <span class="add-on"><i class="icon-calendar"></i> Date: <span id="date-text">{{ currentDate }}</span></span>
+    <input type="text" name="date" id="date" value="{{ currentDate }}"/>
+    </div><br><br>
+
+    <div class="input-prepend">
+    <span class="add-on"><i class="icon-globe"></i></span>
+      <select name="city" class="input-medium" id="city">
+        <option>Bangalore</option>
+        <option>Hyderabad</option>
+        <option>Mumbai</option>
+      </select>
+    </div><br><br>
+
+    <div class="input-prepend">
+    <span class="add-on"><i class="icon-bell"></i></span>
+      <select name="start_time" style="width: 64px;" id="start_time">
+        <option>09:00</option><option>09:30</option>
+        <option>10:00</option><option>10:30</option>
+        <option>11:00</option><option>11:30</option>
+        <option>12:00</option><option>12:30</option>
+        <option>13:00</option><option>13:30</option>
+        <option>14:00</option><option>14:30</option>
+        <option>15:00</option><option>15:30</option>
+        <option>16:00</option><option>16:30</option>
+        <option>17:00</option><option>17:30</option>
+      </select>
+    </div>
+
+    <div class="input-prepend">
+    <span class="add-on"><i class="icon-time"></i></span>
+      <select name="duration" style="width: 64px;" id="duration">
+        <option>0.5</option><option>1</option>
+        <option>1.5</option><option>2</option>
+        <option>2.5</option><option>3</option>
+        <option>3.5</option><option>4</option>
+        <option>4.5</option><option>5</option>
+        <option>5.5</option><option>6</option>
+        <option>6.5</option><option>7</option>
+        <option>7.5</option><option>8</option>
+        <option>8.5</option><option>9</option>
+      </select>
+      <small>Hr</small>
+    </div><br><br>
+
+    <button class="btn btn-success btn-large" type="button" id="search_button">Book Me Room!</button>
+    </fieldset></form></center>
+  </script>
+
+  <script id="result_list_item" type="text/template">
+	  <a href='#wines/'>sfsadfs<%= name %></a>
+  </script>
+
+  <script id="result_template" type="text/template">
+    <ul class="bookings">
+    <% _.each(bookings, function (booking) { %>
+      <li><%= booking.get('name') %></li> 
+    <% }); %>
+    </ul>
+  </script>
+ <!--
+  <ul class="bookings">
+  <% _.each(bookings, function (booking) { %>
+    <li><%= booking.get('text') %></li> 
+  <% }); %>
+  </ul>
+-->
+
+  <script src="{{ static_url("js/jquery.min.js") }}" type="text/javascript"></script>
+  <script src="{{ static_url("js/json2.js") }}" type="text/javascript"></script>
+
+  <script src="{{ static_url("js/underscore.js") }}" type="text/javascript"></script>
+  <script src="{{ static_url("js/backbone.js") }}" type="text/javascript"></script>`
+
+  <script src="{{ static_url("js/bootstrap.min.js") }}" type="text/javascript"></script>
+  <script src="{{ static_url("js/datepicker.js") }}" type="text/javascript"></script>
+  <script src="{{ static_url("js/date.format.js") }}" type="text/javascript"></script>
+  <script src="{{ static_url("js/app.js") }}" type="text/javascript"></script>
+
+</body>
+</html>
