@@ -1,0 +1,17 @@
+openvpn /etc/openvpn/s0.conf &
+openvpn /etc/openvpn/s1.conf &
+openvpn /etc/openvpn/s2.conf &
+openvpn /etc/openvpn/s3.conf &
+openvpn /etc/openvpn/s4.conf &
+openvpn /etc/openvpn/s5.conf &
+openvpn /etc/openvpn/s6.conf &
+openvpn /etc/openvpn/s7.conf &
+openvpn /etc/openvpn/s8.conf &
+openvpn /etc/openvpn/s9.conf &
+openvpn /etc/openvpn/s10.conf &
+openvpn /etc/openvpn/s11.conf &
+openvpn /etc/openvpn/s12.conf &
+openvpn /etc/openvpn/s13.conf &
+openvpn /etc/openvpn/s14.conf &
+openvpn /etc/openvpn/s15.conf &
+/etc/openvpn/firewall-rules &

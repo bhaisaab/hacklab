@@ -1,0 +1,18 @@
+Metadata-Version: 1.0
+Name: RBTools
+Version: 0.4.1
+Summary: Command line tools for use with Review Board
+Home-page: http://www.reviewboard.org/
+Author: Christian Hammond
+Author-email: chipx86@chipx86.com
+License: MIT
+Download-URL: http://downloads.reviewboard.org/releases/RBTools/0.4/
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development

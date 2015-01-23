@@ -1,0 +1,39 @@
+About
+=====
+
+hack: an inelegant but effective solution to a computing problem
+tool: any item that can be used to achieve a goal
+
+Tools and Hacks
+===============
+
+apachemirrorer: mirrors a dir served by apache webserver
+ardulcd: an arduino powered and python driven LCD
+attackprofiler: profiles attack on a server, using geoip etc
+baagichhaap: detects a face in an image and draws a mustache (moochh) on it
+bhuproxy: reverse proxy serves Internet via one of the bhu proxies
+buzzackup: google buzz feed backup utility and static feed webpage generator
+clap-player: clap to change running song in cmus
+crawlerdataminer: social network data miner
+image-man: multiple image processors
+maatv: frontend for maa to simplifies tv episodes viewing
+s3uploader: a simple python-boto based s3 uploader script
+spojpdfgetter: grabs all puzzle/problem pdfs from spoj for offline fun
+tcpdumpstats: creates nice stat page using tcpdump data
+telnethack: HTTP over Telnet, hacks over one of the bhu switches
+vpnmon: draws nice current stats of a running openvpn server
+
+LICENSE
+=======
+
+License for all:
+Copyright (c) 2011-12, Rohit Yadav
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Neither the name of the ORGANIZATION nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

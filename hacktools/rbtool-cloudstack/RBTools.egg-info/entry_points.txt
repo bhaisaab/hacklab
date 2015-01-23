@@ -1,0 +1,3 @@
+[console_scripts]
+post-review = rbtools.postreview:main
+

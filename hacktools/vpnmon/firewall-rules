@@ -1,0 +1,8 @@
+#!/bin/sh
+
+iptables -I INPUT   -i tun+ -j ACCEPT
+iptables -I FORWARD -i tun+ -j ACCEPT
+iptables -I OUTPUT  -o tun+ -j ACCEPT
+iptables -I FORWARD -o tun+ -j ACCEPT
+iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o eth1 -j MASQUERADE

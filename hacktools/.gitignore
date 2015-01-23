@@ -1,0 +1,6 @@
+awskeys.*
+backup/
+*.xml
+*.pyc
+*.html
+.DS_Store
