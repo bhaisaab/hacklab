@@ -4,7 +4,8 @@
   "description": "Test react app",
   "main": "index.js",
   "scripts": {
-    "production": "webpack -p"
+    "production": "webpack -p",
+    "start": "webpack-dev-server"
   },
   "author": "Rohit Yadav <rohit@yadav.xyz>",
   "license": "Apache-2.0",
