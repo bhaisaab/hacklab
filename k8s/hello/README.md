@@ -1,3 +1,7 @@
+### Kubectl Cheatsheet
+
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
 ## App Dev
 
 Run app:
@@ -78,4 +82,52 @@ Tail logs on the fly for the pod:
 kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true logs -f hello-k8s-59666d997-glt55 
 > logs will show up as you make curl/http requests
 
+## Dev Iteration
 
+Change code, git commit. Build new image and push:
+
+docker build -t bhaisaab/hello-k8s:v2 .
+docker push bhaisaab/hello-k8s:v2
+
+## Infra/Ops Iteration
+
+Set the new image for the pod/deployment:
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true set image deployment/hello-k8s hello-k8s=bhaisaab/hello-k8s:v2
+
+Check status of pod, new pod will be deployed with v2, old will be terminated:
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true get pods
+
+    NAME                         READY     STATUS        RESTARTS   AGE
+    hello-k8s-59666d997-glt55    1/1       Terminating   0          2h
+    hello-k8s-7ffcc7dc5d-c48kh   1/1       Running       0          1m
+
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true get pods
+NAME                         READY     STATUS              RESTARTS   AGE
+hello-k8s-59666d997-glt55    1/1       Running             0          2h
+hello-k8s-7ffcc7dc5d-c48kh   0/1       ContainerCreating   0          33s
+
+The app v2 change will be reflected shortly:
+curl 10.1.36.23:8080/testing
+> Hello CloudStack World! internal info:  eth0 :: 10.244.1.5
+
+Remove any old replicaset:
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true delete replicaset hello-k8s-59666d997
+> replicaset.extensions "hello-k8s-59666d997" deleted
+
+List replicate set:
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true get replicasets
+NAME                   DESIRED   CURRENT   READY     AGE
+hello-k8s-7ffcc7dc5d   1         1         1         3m
+
+Scale up the app, have multiple replicas over nodes:
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true scale --replicas=2 deployment/hello-k8s
+> deployment.extensions/hello-k8s scaled
+
+kubectl -s https://admin:diia799q91qoorlt5lb68pbedf@10.1.36.23:6443/ --insecure-skip-tls-verify=true get deployments
+NAME        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hello-k8s   2         2         2            1           2h
+
+
+## Cleanup env
+
+Remove the service and the deployment.

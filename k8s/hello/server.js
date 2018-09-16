@@ -23,7 +23,7 @@ Object.keys(ifaces).forEach(function (ifname) {
 var handleRequest = function(request, response) {
   console.log('Received request for URL: ' + request.url);
   response.writeHead(200);
-  response.end('Hello CloudStack! ' + myips);
+  response.end('Hello CloudStack World! internal info: ' + myips);
 };
 var www = http.createServer(handleRequest);
 www.listen(8080);
