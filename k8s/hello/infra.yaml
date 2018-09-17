@@ -23,7 +23,7 @@ spec:
         run: hello-k8s
     spec:
       containers:
-      - image: bhaisaab/hello-k8s:v1
+      - image: bhaisaab/hello-k8s:v3
         imagePullPolicy: IfNotPresent
         name: hello-k8s
         ports:
