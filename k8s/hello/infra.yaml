@@ -1,0 +1,51 @@
+# Deployment
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: hello-k8s
+  name: hello-k8s
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: hello-k8s
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: hello-k8s
+    spec:
+      containers:
+      - image: bhaisaab/hello-k8s:v1
+        imagePullPolicy: IfNotPresent
+        name: hello-k8s
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: hello-k8s
+  name: hello-k8s
+  namespace: default
+spec:
+  ports:
+  - nodePort: 32080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    run: hello-k8s
+  type: LoadBalancer
